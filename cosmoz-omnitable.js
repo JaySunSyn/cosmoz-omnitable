@@ -191,19 +191,19 @@
 		created: function () {
 			/** WARNING: we do not support columns changes yet. */
 			// `isOmnitableColumn` is a property from cosmoz-omnitable-column-behavior
-			this._columnObserver = Polymer.dom(this).observeNodes(function (info) {
+			this._columnObserver = Polymer.dom(this).observeNodes(info => {
 				var changedColumns = info.addedNodes
 					.concat(info.removedNodes)
 					.filter(function (child) {
-						return child.nodeType === Node.ELEMENT_NODE && child.isOmnitableColumn;
-					});
+						return child.nodeType === Node.ELEMENT_NODE && child.isOmnitableColumn && !this._hiddenAttr(child);
+					}, this);
 
 				if (changedColumns.length === 0) {
 					return;
 				}
 
 				this._updateColumns();
-			}.bind(this));
+			});
 		},
 
 		attached: function () {
@@ -300,9 +300,9 @@
 		},
 
 		_updateColumns: function () {
-			var columns = this.getEffectiveChildren().filter(function (child, index) {
+			var columns = this.getEffectiveChildren().filter((child, index) => {
 					child.__index = index;
-					return child.nodeType === Node.ELEMENT_NODE && child.isOmnitableColumn;
+					return child.nodeType === Node.ELEMENT_NODE && child.isOmnitableColumn && !this._hiddenAttr(child);
 				}),
 				columnNames = columns.map(c => c.name),
 				valuePathNames;
@@ -784,6 +784,15 @@
 				return true;
 			}
 			return false;
+		},
+        /**
+         * Helper method to get a node's hidden attribute as a boolean.
+         * @param {any} node The node.
+         * @returns {Boolean} True if node's hidden attribute is set `hidden` or `hidden="true"`.
+         */
+		_hiddenAttr(node) {
+			var v = node.getAttribute('hidden');
+			return (v ? v.toLowerCase() : v) === 'false' ? false : !!v;
 		},
 
 		_onWebWorkerReady: function () {
