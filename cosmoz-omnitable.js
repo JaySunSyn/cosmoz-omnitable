@@ -72,6 +72,13 @@
 				type: Array,
 				notify: true
 			},
+            /**
+			 * List of highlighted rows/items in `data`.
+			 */
+			highlightedItems: {
+				type: Array,
+				notify: true
+			},
 
 			descending: {
 				type: Boolean,
@@ -294,6 +301,15 @@
 			} else {
 				this.$.groupedList.selectItem(item);
 			}
+
+			event.preventDefault();
+			event.stopPropagation();
+		},
+
+		_onRowItemTapped(event) {
+			var item = event.model.item;
+
+			this.$.groupedList.toggleHighlighted(item);
 
 			event.preventDefault();
 			event.stopPropagation();
@@ -842,11 +858,6 @@
 		},
 
 		/** view functions */
-
-		_getItemRowClasses: function (selected) {
-			return selected ?  'itemRow itemRow-selected' : 'itemRow';
-		},
-
 		_getGroupRowClasses: function (folded) {
 			return folded ? 'groupRow groupRow-folded' : 'groupRow';
 		},
