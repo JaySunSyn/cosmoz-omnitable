@@ -77,6 +77,7 @@
 			 */
 			highlightedItems: {
 				type: Array,
+				computed: '_computeHighLightedItems(sortedFilteredGroupedItems.*)',
 				notify: true
 			},
 
@@ -230,6 +231,14 @@
 
 		_scalingUp: false,
 
+		_computeHighLightedItems(dataChange) {
+			var items = dataChange.base;
+			if (!items) {
+				return;
+			}
+			return items.filter(i => i.__highlighted);
+		},
+
 		_computeGroupOnColumn(groupOn) {
 			return this._getColumn(groupOn);
 		},
@@ -306,13 +315,15 @@
 			event.stopPropagation();
 		},
 
-		_onRowItemTapped(event) {
-			var item = event.model.item;
+		_onRowItemTapped(e) {
+			var i = this.highlightedItems ? this.highlightedItems.indexOf(e.model.item) : -1,
+				item = e.model.item;
 
-			this.$.groupedList.toggleHighlighted(item);
-
-			event.preventDefault();
-			event.stopPropagation();
+			if (i === -1) {
+				this.highlightItem(item);
+				return;
+			}
+			this.playDownItem(item);
 		},
 
 		_onResize: function () {
@@ -988,6 +999,22 @@
 
 		isItemSelected: function (item) {
 			this.$.groupedList.isItemSelected(item);
-		}
+		},
+
+		highlightItem(item) {
+			var index = this.sortedFilteredGroupedItems.indexOf(item);
+			if (index < 0) {
+				return;
+			}
+			this.set(`sortedFilteredGroupedItems.${index}.__highlighted`, true);
+		},
+
+		playDownItem(item) {
+			var index = this.sortedFilteredGroupedItems.indexOf(item);
+			if (index < 0) {
+				return;
+			}
+			this.set(`sortedFilteredGroupedItems.${index}.__highlighted`, false);
+		},
 	});
 }());
