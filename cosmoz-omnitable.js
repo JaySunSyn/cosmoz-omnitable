@@ -231,6 +231,9 @@
 		_scalingUp: false,
 
 		_computeVisibleColumns(columns, groupOn) {
+			if (!columns) {
+				return;
+			}
 			return groupOn ? columns.filter(c => c.name !== this.groupOn) : columns.slice();
 		},
 
@@ -676,7 +679,7 @@
 				// reset headers width
 				headerRow = Polymer.dom(this.$.header).querySelector('cosmoz-omnitable-header-row');
 				headers = Polymer.dom(headerRow).children;
-				headers.forEach(function (header) {
+				Array.from(headers).forEach(function (header) {
 					header.style.minWidth = 'auto';
 					header.style.maxWidth = 'none';
 					header.style.width = 'auto';
@@ -695,7 +698,7 @@
 			fits = scroller.scrollWidth <= scroller.clientWidth;
 			currentWidth = this.$.tableContent.clientWidth;
 			itemRow = Polymer.dom(firstRow).querySelector('cosmoz-omnitable-item-row');
-			cells = Polymer.dom(itemRow).children;
+			cells = Array.from(Polymer.dom(itemRow).children);
 
 			if (fits) {
 				fits = cells.every(function (cell) {
